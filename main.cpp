@@ -5,16 +5,19 @@
 
 int main(void)
 {
+	FUNCCALL funcall;
+	FUNCCALL *funptr = &funcall;
+	funcall.n_in_arguments = 1;
+	funcall.n_out_user = 1;;
 
-	octf ins;
+	FUNCARGS ins[funcall.n_in_arguments];
+	FUNCARGS *argptr = ins;
 
-	octf *inptr = &ins;
-
-	ins.name1 = "sqrt";
-	ins.name2 = NULL; //Passing "" will not work
-
+	funcall.name = "hamming";
+	//ins.name2 = NULL; //Passing "" will not work
 
 
+/*
 	int dim = 1;
 	ins.input1 = new double[dim];
 	ins.size_input1[2]=dim;
@@ -23,9 +26,48 @@ int main(void)
 
 	for(int i=0; i<dim; i++)
 		ins.input1[i]=i+val;
-	
+*/
 
-	int status_fun = fun(inptr);
+	int in_type[2] = {1,10};
+	int i,j;
+	double* d;
+	for(i=0;i<funcall.n_in_arguments;i++)
+	{
+		if(in_type[i]==1)
+		{	
+			ins[i].n_in_rows = 1;
+			ins[i].n_in_cols = 1;
+			int size = (ins[i].n_in_rows)*(ins[i].n_in_cols);
+			ins[i].in_data = malloc(sizeof(double)*size);
+			d = (double *)ins[i].in_data;
+
+			for(j=0;j<size;j++)
+			{
+				d[j] = 2.5*i+5*j+5;
+				//printf("%f\n",d[j]);
+			}
+		}
+		else if(in_type[i]==10)
+		{
+			ins[i].in_data = malloc(sizeof(char)*size);
+			char* c = (char *)ins[i].in_data;
+			int ci=0;
+			while(str[ci]!='\0')
+			{
+				c[ci] = str[ci];
+				ci++;
+			}
+	}
+		for(i=0;i<funcall.n_in_arguments;i++)
+		{
+			//printf("%ld : ",&ins[i].in_data);
+			//printf("%f\n",(*(double *)ins[i].in_data));
+		
+			//free(ins[i].in_data);	
+		}
+
+
+	int status_fun = fun(argptr, funptr);
 
 	if(status_fun==1)
 	{
@@ -34,13 +76,29 @@ int main(void)
 	}
 	else
 	{
-		for(int i=0; i<ins.size_output1[1]; i++)
+		for(i=0;i<funcall.n_in_arguments;i++)
 		{
-			std::cout<< i+1 <<"\t" << ins.output1[i] << std::endl;
+			//printf("%ld : ",&ins[i].in_data);
+		//	printf("%f\n",(*(double *)ins[i].in_data));
+		
+			free(ins[i].in_data);	
 		}
 
-		free(ins.output1);
-		free(ins.input1);
+		for(i=0;i<funcall.n_out_arguments;i++)
+		{
+			//printf("%ld : ",&ins[i].in_data);
+		//	printf("%f\n",(*(double *)ins[i].in_data));
+		
+			free(ins[i].out_data);	
+		}
+
+//		for(int i=0; i<ins.size_output1[1]; i++)
+//		{
+//			std::cout<< i+1 <<"\t" << ins.output1[i] << std::endl;
+//		}
+
+//		free(ins.output1);
+//		free(ins.input1);
 	}
 	return 0;
 }
