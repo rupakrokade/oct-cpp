@@ -13,12 +13,12 @@ extern "C"
 	typedef struct
 	{
 		FUNCTYPE type;
-		void* in_data;
-		void* out_data;
 		int n_in_rows;
 		int n_in_cols;
 		int n_out_rows;
 		int n_out_cols;
+		void* in_data;
+		void* out_data;
 	}FUNCARGS;
 	
 	typedef struct {
