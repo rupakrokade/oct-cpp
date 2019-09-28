@@ -85,25 +85,29 @@ extern "C"
 
 			octave_value_list out = octave::feval (str_fun, in, 1);
 
-			Matrix mOut(out(0).matrix_value());
+
 
 			nouts = out.length();
 			funcall->n_out_arguments = nouts;
 //std::cout << "funcall->n_out_arguments is: " << funcall->n_out_arguments << '\n';
 
-			int row = mOut.rows();
-			int col = mOut.columns();
-			inp[0].n_out_rows = row;
-			inp[0].n_out_cols = col;
-			k=0;
-			inp[0].out_data = malloc(sizeof(double)*(row*col));
-			double* dd = (double *)inp[0].out_data;
-			for(unsigned int i=0;i<row;i++)
-				{
-					for(unsigned int j=0;j<col;j++)
+			for( unsigned int ii = 0; ii < nouts; ii++ )
+			{
+				Matrix mOut(out(ii).matrix_value());
+				int row = mOut.rows();
+				int col = mOut.columns();
+				inp[ii].n_out_rows = row;
+				inp[ii].n_out_cols = col;
+				k=0;
+				inp[ii].out_data = malloc(sizeof(double)*(row*col));
+				double* dd = (double *)inp[ii].out_data;
+				for(unsigned int i=0;i<row;i++)
 					{
-						dd[k]=mOut(k);
-						k++;
+						for(unsigned int j=0;j<col;j++)
+						{
+							dd[k]=mOut(k);
+							k++;
+						}
 					}
 				}
 		}
