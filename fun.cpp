@@ -50,7 +50,7 @@ extern "C"
 					{
 						for( unsigned int j = 0; j < inp[l].n_in_cols; j++ )
 						{
-								inMatrix_x(i, j) = id[k]; 
+								inMatrix_x(i, j) = id[k];
 								k++;
 						}
 					}
@@ -113,16 +113,13 @@ extern "C"
 		}
 		catch (const octave::exit_exception& ex)
 		{
-			//error(ex.exit_status());
-			//std::cout << "error is : " << ex.exit_status() << std::endl;
-
-			//std::cerr << "Octave interpreter exited with status = "
-					//<< ex.exit_status () << std::endl;
+			std::cerr << "Octave interpreter exited with status = "
+					<< ex.exit_status () << std::endl;
 			return 1;
 		}
 		catch (const octave::execution_exception&)
 		{
-			//std::cerr << "error encountered in Octave evaluator!" << std::endl;
+			std::cerr << "error encountered in Octave evaluator!" << std::endl;
 			return 1;
 		}
 		return 0;

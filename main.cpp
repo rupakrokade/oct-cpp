@@ -7,15 +7,15 @@ int main(void)
 {
 	FUNCCALL funcall;
 	FUNCCALL *funptr = &funcall;
-	funcall.n_in_arguments = 4;
-	funcall.n_out_user = 2;
+	funcall.n_in_arguments = 2;
+	funcall.n_out_user = 1;
 
 	FUNCARGS ins[funcall.n_in_arguments*funcall.n_out_user];
 	FUNCARGS *argptr = ins;
 	
 	int a;
-	int in_type[4] = {10,10,1,1};
-	char str[3][20] = {"arburg","signal"};
+	int in_type[4] = {10,1};
+	char str[3][20] = {"inv","signal"};
 	int si;
 	double* d;
 	int size_double;
@@ -23,17 +23,17 @@ int main(void)
 	{
 		if(in_type[a]==1)
 		{
-			ins[a].n_in_rows = 1;
-			ins[a].n_in_cols = 5;
-			if(a>2)
-				ins[a].n_in_cols = 1;
+			ins[a].n_in_rows = 2;
+			ins[a].n_in_cols = 2;
+			//if(a>2)
+				//ins[a].n_in_cols = 1;
 			
 			size_double = ins[a].n_in_rows*ins[a].n_in_cols;
 			ins[a].type = TYPE_DOUBLE;
 			ins[a].in_data = malloc(sizeof(double)*size_double);
 			d = (double *)ins[a].in_data;
 			for(int i=0;i<size_double;i++)
-				d[i] = 43.34*i+2;
+				d[i] = i+1;
 		}
 		else if(in_type[a]==10)
 		{
@@ -59,10 +59,13 @@ int main(void)
 
 	for(int j=0;j<funcall.n_in_arguments;j++)
 	{
-		d = (double *)ins[j].in_data;
-		size_double = ins[j].n_in_rows*ins[j].n_in_cols;
-		for(int i=0;i<size_double;i++)
-			std::cout << "input data" << j<< " is: " << d[i] << '\n';
+	if(in_type[j]==1)
+		{
+			d = (double *)ins[j].in_data;
+			size_double = ins[j].n_in_rows*ins[j].n_in_cols;
+			for(int i=0;i<size_double;i++)
+				std::cout << "input data" << j<< " is: " << d[i] << '\n';
+		}
 	}
 
 	fun(argptr, funptr);
