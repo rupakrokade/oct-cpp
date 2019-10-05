@@ -15,7 +15,7 @@ int main(void)
 	
 	int a;
 	int in_type[4] = {10,1};
-	char str[3][20] = {"inv","signal"};
+	char str[3][20] = {"sqrt","signal"};
 	int si;
 	double* d;
 	int size_double;
@@ -23,6 +23,7 @@ int main(void)
 	{
 		if(in_type[a]==1)
 		{
+			ins[a].is_in_cmplx = 0;
 			ins[a].n_in_rows = 2;
 			ins[a].n_in_cols = 2;
 			//if(a>2)
@@ -30,10 +31,10 @@ int main(void)
 			
 			size_double = ins[a].n_in_rows*ins[a].n_in_cols;
 			ins[a].type = TYPE_DOUBLE;
-			ins[a].in_data = malloc(sizeof(double)*size_double);
-			d = (double *)ins[a].in_data;
+			ins[a].in_data_real = malloc(sizeof(double)*size_double);
+			d = (double *)ins[a].in_data_real;
 			for(int i=0;i<size_double;i++)
-				d[i] = i+1;
+				d[i] = -(i+1);
 		}
 		else if(in_type[a]==10)
 		{
@@ -48,8 +49,8 @@ int main(void)
 			int len = strlen(str[si]);
 			ins[a].n_in_rows = 1;
 			ins[a].n_in_cols = len;
-			ins[a].in_data = malloc(sizeof(char)*len+1);
-			char* c = (char *)ins[a].in_data;
+			ins[a].in_data_real = malloc(sizeof(char)*len+1);
+			char* c = (char *)ins[a].in_data_real;
 			strcpy(c,str[si]);
 
 			std::cout << "func string in main is: " << c << '\n';
@@ -61,7 +62,7 @@ int main(void)
 	{
 	if(in_type[j]==1)
 		{
-			d = (double *)ins[j].in_data;
+			d = (double *)ins[j].in_data_real;
 			size_double = ins[j].n_in_rows*ins[j].n_in_cols;
 			for(int i=0;i<size_double;i++)
 				std::cout << "input data" << j<< " is: " << d[i] << '\n';
@@ -74,20 +75,36 @@ int main(void)
 
 	for(int j=0;j<funcall.n_out_user;j++)
 	{
-		double* dd = (double *)ins[j].out_data;
+		double* rd = (double *)ins[j].out_data_real;
 		for(int i=0;i<(ins[j].n_out_rows*ins[j].n_out_cols);i++)
-			std::cout << "output data" << j<< " is: " << dd[i] << '\n';
+			std::cout << "output data real: " << j<< " is: " << rd[i] << '\n';
+
+		if(ins[j].is_out_cmplx==1)
+		{
+			double* cd = (double *)ins[j].out_data_img;
+			for(int i=0;i<(ins[j].n_out_rows*ins[j].n_out_cols);i++)
+				std::cout << "output data img: " << j<< " is: " << cd[i] << '\n';
+		}
 	}
 
 	std::cout << "ins[0].n_in_rows is: " << ins[0].n_in_rows << '\n';
 	std::cout << "ins[0].n_in_cols is: " << ins[0].n_in_cols << '\n';
 
 	for(int i=0;i<funcall.n_in_arguments;i++)	
-		free(ins[i].in_data);
-	
-	for(int i=0;i<funcall.n_out_user;i++)	
-		free(ins[i].out_data);
+	{
+		free(ins[i].in_data_real);
 
+		if(ins[i].is_in_cmplx==1)
+			free(ins[i].in_data_img);
+	}
+
+	for(int i=0;i<funcall.n_out_user;i++)	
+	{
+		free(ins[i].out_data_real);
+
+		if(ins[i].is_out_cmplx==1)
+			free(ins[i].out_data_img);
+	}
 	//free(ins[1].in_data);
 	//free(ins[2].in_data);
 	//free(ins[0].out_data);

@@ -42,25 +42,44 @@ extern "C"
 			{
 				if(inp[l].type==TYPE_DOUBLE)
 				{
-					//std::cout << "In fun double. l is : " << l << '\n';
-					Matrix inMatrix_x(inp[l].n_in_rows,inp[l].n_in_cols);
-					double* id = (double *)inp[l].in_data;
-					k=0;
-					for( unsigned int i = 0; i < inp[l].n_in_rows; i++ )
+					if(inp[l].is_in_cmplx==1)
 					{
-						for( unsigned int j = 0; j < inp[l].n_in_cols; j++ )
-						{
-								inMatrix_x(i, j) = id[k];
+						ComplexMatrix matr = ComplexMatrix (inp[l].n_in_rows,inp[l].n_in_cols); 
+						double* id_real = (double *)inp[l].in_data_real;
+						double* id_img = (double *)inp[l].in_data_img;
+						k=0;
+						for (int r=0;r<inp[l].n_in_rows;r++) 
+							{ 
+							for(int c=0;c<inp[l].n_in_cols;c++) 
+								{ 
+								Complex cc(id_real[k],id_img[k]); 
+								matr(r,c) = cc;
 								k++;
-						}
+								} 
+							} 
+						in(l-str_count) = octave_value(matr);
 					}
-					in(l-str_count) = inMatrix_x;
+					else
+					{
+						Matrix inMatrix_x(inp[l].n_in_rows,inp[l].n_in_cols);
+						double* id = (double *)inp[l].in_data_real;
+						k=0;
+						for( unsigned int i = 0; i < inp[l].n_in_rows; i++ )
+						{
+							for( unsigned int j = 0; j < inp[l].n_in_cols; j++ )
+							{
+									inMatrix_x(i, j) = id[k];
+									k++;
+							}
+						}
+						in(l-str_count) = inMatrix_x;
+					}
 				}
 				else if(inp[l].type==TYPE_STRING)
 				{
 					//std::cout << "In fun string. l is : " << l << '\n';
 					
-					char* c = (char *)inp[l].in_data;
+					char* c = (char *)inp[l].in_data_real;
 					//std::cout << "String is: " << c << '\n';
 					if(l==0)
 						strcpy(str_fun,c);
@@ -86,22 +105,50 @@ extern "C"
 			octave_value_list out = octave::feval (str_fun, in, 1);
 
 
-
+			int row;
+			int col;
 			nouts = out.length();
 			funcall->n_out_arguments = nouts;
 //std::cout << "funcall->n_out_arguments is: " << funcall->n_out_arguments << '\n';
 
 			for( unsigned int ii = 0; ii < nouts; ii++ )
 			{
-				Matrix mOut(out(ii).matrix_value());
-				int row = mOut.rows();
-				int col = mOut.columns();
-				inp[ii].n_out_rows = row;
-				inp[ii].n_out_cols = col;
-				k=0;
-				inp[ii].out_data = malloc(sizeof(double)*(row*col));
-				double* dd = (double *)inp[ii].out_data;
-				for(unsigned int i=0;i<row;i++)
+				if(out(ii).iscomplex()==1)
+				{
+					inp[ii].is_out_cmplx=1;
+
+					ComplexMatrix cmOut(out(ii).complex_matrix_value());
+					row = cmOut.rows();
+					col = cmOut.columns();
+					inp[ii].n_out_rows = row;
+					inp[ii].n_out_cols = col;
+					k=0;
+					inp[ii].out_data_real = malloc(sizeof(double)*(row*col));
+					inp[ii].out_data_img = malloc(sizeof(double)*(row*col));
+					double* rd = (double *)inp[ii].out_data_real;
+					double* cd = (double *)inp[ii].out_data_img;
+					for(unsigned int i=0;i<row;i++)
+					{
+						for(unsigned int j=0;j<col;j++)
+						{
+							rd[k]=real(cmOut(k));
+							cd[k]=imag(cmOut(k));
+							k++;
+						}
+					}
+				}
+				else
+				{
+					inp[ii].is_out_cmplx=0;
+					Matrix mOut(out(ii).matrix_value());
+					row = mOut.rows();
+					col = mOut.columns();
+					inp[ii].n_out_rows = row;
+					inp[ii].n_out_cols = col;
+					k=0;
+					inp[ii].out_data_real = malloc(sizeof(double)*(row*col));
+					double* dd = (double *)inp[ii].out_data_real;
+					for(unsigned int i=0;i<row;i++)
 					{
 						for(unsigned int j=0;j<col;j++)
 						{
@@ -110,6 +157,7 @@ extern "C"
 						}
 					}
 				}
+			}
 		}
 		catch (const octave::exit_exception& ex)
 		{
