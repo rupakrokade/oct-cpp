@@ -102,7 +102,7 @@ extern "C"
 				octave::feval ("pkg", ovl ("load", str_pkg), 0);
 			}
 
-			octave_value_list out = octave::feval (str_fun, in, 1);
+			octave_value_list out = octave::feval (str_fun, in, funcall->n_out_user);
 
 
 			int row;
@@ -116,8 +116,11 @@ extern "C"
 				if(out(ii).iscomplex()==1)
 				{
 					inp[ii].is_out_cmplx=1;
-
+					//std::cout << "out "<< ii<< " is complex" << '\n';
 					ComplexMatrix cmOut(out(ii).complex_matrix_value());
+					//std::cout << "cmOut "<< cmOut << '\n';
+					//std::cout << "Out(ii) "<< out(ii).complex_matrix_value() << '\n';
+					//std::cout << "out(ii) "<< out(ii) << '\n';
 					row = cmOut.rows();
 					col = cmOut.columns();
 					inp[ii].n_out_rows = row;
@@ -133,12 +136,14 @@ extern "C"
 						{
 							rd[k]=real(cmOut(k));
 							cd[k]=imag(cmOut(k));
+							//std::cout << "out img "<< k << " is :" << (double)imag(cmOut(k)) << '\n';
 							k++;
 						}
 					}
 				}
 				else
 				{
+					//std::cout << "out "<< ii<< " is NOT complex" << '\n';
 					inp[ii].is_out_cmplx=0;
 					Matrix mOut(out(ii).matrix_value());
 					row = mOut.rows();
