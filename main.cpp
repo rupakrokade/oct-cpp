@@ -15,7 +15,7 @@ int main(void)
 	
 	int a;
 	int in_type[4] = {10,1};
-	char str[3][20] = {"sqrt","signal"};
+	char str[3][20] = {"hamming","signal"};
 	int si;
 	double* d;
 	int size_double;
@@ -24,8 +24,8 @@ int main(void)
 		if(in_type[a]==1)
 		{
 			ins[a].is_in_cmplx = 0;
-			ins[a].n_in_rows = 2;
-			ins[a].n_in_cols = 2;
+			ins[a].n_in_rows = 1;
+			ins[a].n_in_cols = 1;
 			//if(a>2)
 				//ins[a].n_in_cols = 1;
 			
@@ -34,7 +34,7 @@ int main(void)
 			ins[a].in_data_real = malloc(sizeof(double)*size_double);
 			d = (double *)ins[a].in_data_real;
 			for(int i=0;i<size_double;i++)
-				d[i] = -(i+1);
+				d[i] = (i+4);
 		}
 		else if(in_type[a]==10)
 		{
